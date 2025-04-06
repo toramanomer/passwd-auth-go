@@ -143,3 +143,8 @@ func (repo *postgresUserManagementRepository) IncrementAttemptCount(ctx context.
 	)
 	return err
 }
+
+func (repo *postgresUserManagementRepository) DeleteSession(ctx context.Context, sessionId string) error {
+	_, err := repo.db.Exec(ctx, "DELETE FROM user_sessions WHERE id = $1", sessionId)
+	return err
+}

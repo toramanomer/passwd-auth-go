@@ -87,6 +87,11 @@ func main() {
 	}
 	mux.Handle("/signup", signupHandler)
 
+	signoutHandler := &handlers.SignoutController{
+		UserManagementRepo: userManagementRepo,
+	}
+	mux.Handle("/signout", signoutHandler)
+
 	verifyHandler := &handlers.VerifyController{
 		UserManagementRepo: userManagementRepo,
 	}

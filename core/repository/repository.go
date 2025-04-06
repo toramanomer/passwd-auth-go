@@ -17,6 +17,8 @@ type UserManagementRepository interface {
 	VerifyUserEmail(ctx context.Context, userID, evID string, session *model.UserSession) error
 
 	IncrementAttemptCount(ctx context.Context, evID string) error
+
+	DeleteSession(ctx context.Context, sessionId string) error
 }
 
 func NewUserManagementRepository(db *pgxpool.Pool) UserManagementRepository {

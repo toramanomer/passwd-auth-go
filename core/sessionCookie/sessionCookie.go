@@ -6,7 +6,6 @@ const sessionCookieName = "__Host-s"
 const maxAge = 60 * 10 // 10 minutes in seconds
 
 func Create(sessionID string) *http.Cookie {
-
 	return &http.Cookie{
 		Name:   sessionCookieName,
 		Value:  sessionID,
@@ -25,3 +24,5 @@ func Expire() *http.Cookie {
 
 	return cookie
 }
+
+func GetName() string { return sessionCookieName }
