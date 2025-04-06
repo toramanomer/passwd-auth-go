@@ -87,5 +87,10 @@ func main() {
 	}
 	mux.Handle("/signup", signupHandler)
 
+	verifyHandler := &handlers.VerifyController{
+		UserManagementRepo: userManagementRepo,
+	}
+	mux.Handle("/verify", verifyHandler)
+
 	log.Fatalln(server.ListenAndServe())
 }

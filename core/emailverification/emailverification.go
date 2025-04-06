@@ -3,6 +3,7 @@ package emailverification
 import (
 	"crypto/rand"
 	"crypto/sha3"
+	"crypto/subtle"
 	"encoding/hex"
 )
 
@@ -35,4 +36,15 @@ func (*defaultStrategy) GenerateCode() (rawCode string, protectedCode string, st
 	strategyName = "sha3-512"
 
 	return
+}
+
+func VerifyCode(rawCode, protectedCode string) bool {
+	digest := sha3.Sum512([]byte(rawCode))
+
+	var (
+		codeX = []byte(hex.EncodeToString(digest[:]))
+		codeY = []byte(protectedCode)
+	)
+
+	return subtle.ConstantTimeCompare(codeX, codeY) == 1
 }
