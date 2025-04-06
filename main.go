@@ -2,9 +2,19 @@ package main
 
 import (
 	"bufio"
+	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strings"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/toramanomer/passwd-auth-go/core/emailverification"
+	"github.com/toramanomer/passwd-auth-go/core/mailer"
+	"github.com/toramanomer/passwd-auth-go/core/repository"
+	"github.com/toramanomer/passwd-auth-go/handlers"
 )
 
 func init() {
@@ -41,5 +51,41 @@ func init() {
 }
 
 func main() {
+	var (
+		connString = os.Getenv("POSTGRESQL_CONNECTION")
+		serverPort = os.Getenv("SERVER_PORT")
+		serverAddr = fmt.Sprintf(":%s", serverPort)
+	)
 
+	var db, err = pgxpool.New(context.Background(), connString)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		os.Exit(1)
+	}
+
+	var (
+		mux    = http.NewServeMux()
+		server = &http.Server{
+			Addr:              serverAddr,
+			Handler:           mux,
+			ReadTimeout:       3 * time.Second,
+			WriteTimeout:      3 * time.Second,
+			ReadHeaderTimeout: 3 * time.Second,
+		}
+	)
+
+	var (
+		userManagementRepo = repository.NewUserManagementRepository(db)
+		mailer             = mailer.NewMailer()
+		evStrategy         = emailverification.NewEmailVerificationStrategy()
+	)
+
+	signupHandler := &handlers.SignupController{
+		UserManagementRepo:        userManagementRepo,
+		EmailVerificationStrategy: evStrategy,
+		Mailer:                    mailer,
+	}
+	mux.Handle("/signup", signupHandler)
+
+	log.Fatalln(server.ListenAndServe())
 }
