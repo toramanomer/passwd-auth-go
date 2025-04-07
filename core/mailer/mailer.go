@@ -6,5 +6,5 @@ type Mailer interface {
 }
 
 func NewMailer() Mailer {
-	return newSmptMailer()
+	return newResendMailer()
 }
