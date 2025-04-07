@@ -97,5 +97,12 @@ func main() {
 	}
 	mux.Handle("/verify", verifyHandler)
 
+	resendVerificationHandler := &handlers.ResendVerificationController{
+		UserManagementRepo:        userManagementRepo,
+		EmailVerificationStrategy: evStrategy,
+		Mailer:                    mailer,
+	}
+	mux.Handle("/resend-verification", resendVerificationHandler)
+
 	log.Fatalln(server.ListenAndServe())
 }

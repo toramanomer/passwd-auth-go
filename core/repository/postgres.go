@@ -148,3 +148,40 @@ func (repo *postgresUserManagementRepository) DeleteSession(ctx context.Context,
 	_, err := repo.db.Exec(ctx, "DELETE FROM user_sessions WHERE id = $1", sessionId)
 	return err
 }
+
+func (repo *postgresUserManagementRepository) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	var user model.User
+
+	err := repo.db.QueryRow(
+		ctx,
+		`SELECT id, email, password_hash, email_verified_at, created_at, updated_at
+		FROM users
+		WHERE email = $1`,
+		email,
+	).Scan(&user.ID, &user.Email, &user.PasswordHash, &user.EmailVerifiedAt, &user.CreatedAt, &user.UpdatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (repo *postgresUserManagementRepository) CreateEmailVerification(ctx context.Context, ev *model.EmailVerification) error {
+	_, err := repo.db.Exec(
+		ctx,
+		`INSERT INTO email_verifications
+			( id, user_id, verification_code_hash, strategy, purpose, attempt_count, created_at, expires_at )
+		VALUES ( $1, $2, $3, $4, $5, $6, $7, $8 )
+		`,
+		ev.ID,
+		ev.UserID,
+		ev.VerificationCode,
+		ev.Strategy,
+		ev.Purpose,
+		ev.AttemptCount,
+		ev.CreatedAt,
+		ev.ExpiresAt,
+	)
+	return err
+}

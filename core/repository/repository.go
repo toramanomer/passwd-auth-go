@@ -12,7 +12,11 @@ type UserManagementRepository interface {
 	// along with email verification.
 	CreatePendingUser(context.Context, *model.User, *model.EmailVerification) error
 
+	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
+
 	GetUserAndEmailVerification(ctx context.Context, email string) (*model.User, *model.EmailVerification, error)
+
+	CreateEmailVerification(ctx context.Context, ev *model.EmailVerification) error
 
 	VerifyUserEmail(ctx context.Context, userID, evID string, session *model.UserSession) error
 
